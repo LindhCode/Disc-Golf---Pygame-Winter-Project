@@ -43,6 +43,9 @@ class Disc():
         self.y = y
         #Shooting the disc
         self.power = 0    
+        self.thrown = False
+        self.angle = 0
+        self.flying = False
     def draw(self):
         '''Creating the power rectangle for the disc'''
         #get mouse position
@@ -74,29 +77,20 @@ class Disc():
             pygame.draw.rect(rect_surf, (rect_color,0,0), (0,0, rect_width, rect_height))
             
             #rectangle angle
-            angle = math.degrees(math.atan2(-dy, dx))
+            self.angle = math.degrees(math.atan2(-dy, dx))
 
             #rotate the surface
-            rotated_surf = pygame.transform.rotate(rect_surf, angle-90)
-            rotated_rect = rotated_surf.get_rect(center=(self.x + 30, self.start_height))
+            rotated_surf = pygame.transform.rotate(rect_surf, self.angle-90)
+            rotated_rect = rotated_surf.get_rect(center=(self.circle.x + 30, self.start_height))
             screen.blit(rotated_surf, rotated_rect)
 
         if pygame.mouse.get_pressed()[0] == False:
             self.clicked = False
+            self.flying = True
         screen.blit(self.image, (self.circle.x, self.circle.y))
-        return self.power
 
-    def shoot(self):
-        pos = pygame.mouse.get_pos()
-        if self.circle.collidepoint(pos):
-            if pygame.mouse.get_pressed()[0]:
-                if self.clicked == False:
-                    print("Vi förbereder skott!")
-                self.clicked = True
-        if pygame.mouse.get_pressed()[0] == False:
-            print("Skott!")
-            self.clicked = False
-        screen.blit(self.image, (self.circle.x, self.circle.y))
+
+'''SCENE DICTIONARY'''
 scene = {
     "main_menu" : True,
     "level_1" : False
@@ -107,7 +101,7 @@ power_button = Button(100,200,power_button_img, 2)
 
 '''LEVEL 1 SCENE'''
 disc_img = pygame.image.load("disc.png").convert_alpha()
-disc = Disc(200,300,disc_img,"midrange", 2)
+disc = Disc(200,500,disc_img,"midrange", 2)
 
 '''TIME'''
 prev_time = time.time()
@@ -134,8 +128,21 @@ while run:
     if scene["level_1"]:
         screen.fill((202,228,241))
         disc.draw()
-        if disc.power > 0 and disc.clicked == False:
-            print("Skott!")
+        if disc.flying:
+
+            disc.flying = True
+            if disc.power > 0 and disc.clicked == False:
+                if disc.thrown == False:
+                    disc.circle.y -= disc.power * dt
+                    disc.power -= 18 * dt
+                    print(dt)
+                    print(disc.power)
+                disc.thrown = True
+            disc.thrown = False
+
+            
+
+
 
 
     for event in pygame.event.get():
