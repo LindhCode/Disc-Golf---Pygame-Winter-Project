@@ -89,6 +89,27 @@ class Disc():
             self.flying = True
         screen.blit(self.image, (self.circle.x, self.circle.y))
 
+        '''DISC RETURNS IF IT LEAVES THE SCREEN'''
+
+        # TODO: Make it so that when the disc is nearing the edge
+        # make the background follow the disc
+        if self.circle.x < -50:
+            self.circle.x = 450
+        if self.circle.y < -50:
+            self.circle.y = 650
+        
+
+class Background:
+    def __init__(self,image,x,y):
+        width = image.get_width()
+        height = image.get_height()
+        self.image = pygame.transform.scale(image, (int(width), int(height)))
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x,y)
+
+    def draw(self):
+        screen.blit(self.image, (self.rect.x, self.rect.y))
+
 
 '''SCENE DICTIONARY'''
 scene = {
@@ -100,8 +121,12 @@ power_button_img = pygame.image.load("power-button.png").convert_alpha()
 power_button = Button(100,200,power_button_img, 2)
 
 '''LEVEL 1 SCENE'''
+# Disc
 disc_img = pygame.image.load("disc.png").convert_alpha()
 disc = Disc(200,500,disc_img,"midrange", 2)
+# Background
+level_1_bg_img = pygame.image.load("Level_1.png").convert_alpha()
+bg_l1 = Background(level_1_bg_img, 0, -1400)
 
 '''TIME'''
 prev_time = time.time()
@@ -126,21 +151,21 @@ while run:
         
 
     if scene["level_1"]:
-        screen.fill((202,228,241))
+        screen.fill((126,165,80))
+        bg_l1.draw()
         disc.draw()
-        if disc.flying:
 
+
+        if disc.flying:
             disc.flying = True
             if disc.power > 0 and disc.clicked == False:
-                if disc.thrown == False:
+                if disc.flying:
+                    # TODO: Make the disc move based on self.angle
                     disc.circle.y -= disc.power * dt
                     disc.power -= 18 * dt
-                    print(dt)
-                    print(disc.power)
-                disc.thrown = True
-            disc.thrown = False
+            if disc.power == 0:
+                disc.flying = False
 
-            
 
 
 
